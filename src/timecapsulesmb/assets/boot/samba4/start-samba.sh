@@ -362,6 +362,12 @@ stage_runtime() {
     smbd_src=$2
     nbns_src=${3:-}
 
+    mkdir -p "$LOCK_DIRECTORY" "$STATE_DIRECTORY"
+    rm -rf "$LOCK_DIRECTORY"/msg.lock
+    rm -f "$LOCK_DIRECTORY"/*.tdb "$STATE_DIRECTORY"/*.tdb
+    chmod 755 "$LOCK_DIRECTORY" "$STATE_DIRECTORY"
+    chown -R 0:0 "$LOCK_DIRECTORY" "$STATE_DIRECTORY"
+
     cp "$smbd_src" "$RAM_SBIN/smbd"
     chmod 755 "$RAM_SBIN/smbd"
 
@@ -404,8 +410,8 @@ stage_runtime() {
     disable spoolss = yes
     dfree command = /bin/sh /mnt/Flash/dfree.sh
     pid directory = $RAM_VAR
-    lock directory = $RAM_LOCKS
-    state directory = $RAM_VAR
+    lock directory = $LOCK_DIRECTORY
+    state directory = $STATE_DIRECTORY
     cache directory = $CACHE_DIRECTORY
     private dir = $RAM_PRIVATE
     log file = $SMBD_LOG
@@ -573,6 +579,8 @@ PAYLOAD_DIR=$(find_payload_dir "$DATA_ROOT") || {
     exit 1
 }
 CACHE_DIRECTORY=__CACHE_DIRECTORY__
+LOCK_DIRECTORY=__LOCK_DIRECTORY__
+STATE_DIRECTORY=__STATE_DIRECTORY__
 log "data root: $DATA_ROOT"
 
 SMBD_SRC=$(find_payload_smbd "$PAYLOAD_DIR") || {

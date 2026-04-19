@@ -23,6 +23,24 @@ def cache_directory_replacements(payload_family: str, payload_dir_name: str) -> 
     return ("/mnt/Memory/samba4/var", "/mnt/Memory/samba4/var")
 
 
+def lock_directory_replacements(payload_family: str, payload_dir_name: str) -> tuple[str, str]:
+    if payload_family == "netbsd4_samba4":
+        return (
+            "$PAYLOAD_DIR/locks",
+            "__PAYLOAD_DIR__/locks",
+        )
+    return ("/mnt/Memory/samba4/locks", "/mnt/Memory/samba4/locks")
+
+
+def state_directory_replacements(payload_family: str, payload_dir_name: str) -> tuple[str, str]:
+    if payload_family == "netbsd4_samba4":
+        return (
+            "$PAYLOAD_DIR/state",
+            "__PAYLOAD_DIR__/state",
+        )
+    return ("/mnt/Memory/samba4/var", "/mnt/Memory/samba4/var")
+
+
 def load_boot_asset_text(name: str) -> str:
     return resources.files("timecapsulesmb.assets.boot.samba4").joinpath(name).read_text()
 
@@ -53,10 +71,20 @@ def build_template_bundle(
         payload_family,
         values["TC_PAYLOAD_DIR_NAME"],
     )
+    start_lock_directory, smbconf_lock_directory = lock_directory_replacements(
+        payload_family,
+        values["TC_PAYLOAD_DIR_NAME"],
+    )
+    start_state_directory, smbconf_state_directory = state_directory_replacements(
+        payload_family,
+        values["TC_PAYLOAD_DIR_NAME"],
+    )
     return TemplateBundle(
         start_script_replacements={
             "__PAYLOAD_DIR_NAME__": shell_quote(values["TC_PAYLOAD_DIR_NAME"]),
             "__CACHE_DIRECTORY__": start_cache_directory,
+            "__LOCK_DIRECTORY__": start_lock_directory,
+            "__STATE_DIRECTORY__": start_state_directory,
             "__SMB_SHARE_NAME__": shell_quote(values["TC_SHARE_NAME"]),
             "__SMB_NETBIOS_NAME__": shell_quote(values["TC_NETBIOS_NAME"]),
             "__NET_IFACE__": shell_quote(values["TC_NET_IFACE"]),
@@ -85,5 +113,7 @@ def build_template_bundle(
             "__SMB_NETBIOS_NAME__": values["TC_NETBIOS_NAME"],
             "__NET_IFACE__": values["TC_NET_IFACE"],
             "__CACHE_DIRECTORY__": smbconf_cache_directory,
+            "__LOCK_DIRECTORY__": smbconf_lock_directory,
+            "__STATE_DIRECTORY__": smbconf_state_directory,
         },
     )
