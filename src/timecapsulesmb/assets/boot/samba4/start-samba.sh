@@ -399,6 +399,7 @@ stage_runtime() {
     dos charset = ASCII
     min protocol = SMB2
     max protocol = SMB3
+    unix extensions = no
     load printers = no
     disable spoolss = yes
     dfree command = /bin/sh /mnt/Flash/dfree.sh
