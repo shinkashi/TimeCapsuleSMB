@@ -365,7 +365,8 @@ stage_runtime() {
     mkdir -p "$LOCK_DIRECTORY" "$STATE_DIRECTORY"
     rm -rf "$LOCK_DIRECTORY"/msg.lock
     rm -f "$LOCK_DIRECTORY"/*.tdb "$STATE_DIRECTORY"/*.tdb
-    chmod 755 "$LOCK_DIRECTORY" "$STATE_DIRECTORY"
+    mkdir -p "$LOCK_DIRECTORY/msg.lock"
+    chmod 755 "$LOCK_DIRECTORY" "$LOCK_DIRECTORY/msg.lock" "$STATE_DIRECTORY"
     chown -R 0:0 "$LOCK_DIRECTORY" "$STATE_DIRECTORY"
 
     cp "$smbd_src" "$RAM_SBIN/smbd"
